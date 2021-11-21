@@ -4,7 +4,7 @@ import pandas_gbq
 import numpy as np
 
 
-def convert_str_to_date():
+def convert_str_to_date(dataframe):
     pass
 
 def remove_dots_location(dataframe):
@@ -16,8 +16,9 @@ def remove_dots_cpi(dataframe):
     # remove ".." from cpi field
     # removing "." will remove the decimal point
 
-    dataframe.iloc[:,3] = dataframe.iloc[:,3].str.replace("..",np.nan)
-    
+    dataframe['cpi'] = pd.to_numeric(dataframe.cpi,errors='coerce')
+
+
 def main():
     load_dotenv()
     
@@ -31,16 +32,13 @@ def main():
     
     long_df.rename(columns=new_cols,inplace=True)
 
-    print(long_df.dtypes)
+    remove_dots_location(long_df)
     
-    print(long_df)
-
-    remove_dots(long_df)
+    remove_dots_cpi(long_df)
     
-#    long_df.to_csv(r'data/test.csv',index=False)
-    
-    print(long_df)
-#    pandas_gbq.to_gbq(long_df, "staging.test",project_id="mao-dw",if_exists="replace")
+    # TODO: Fix rounding of actual cpi values when uploaded to GBQ
+    # probably caused by conversion of datatypes
+    pandas_gbq.to_gbq(long_df, "staging.test",project_id="mao-dw",if_exists="replace")
 
 
 if __name__=="__main__":
