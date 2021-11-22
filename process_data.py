@@ -4,11 +4,25 @@ import pandas_gbq
 import numpy as np
 
 
-def convert_str_to_date(dataframe):
+def wide_to_long(dataframe):
     pass
+
+
+def convert_str_to_date(dataframe):
+
+#    dataframe['month'] = dataframe.month + ' 01'
+
+    dataframe['month'] = pd.to_datetime(dataframe.month,errors='coerce',format="%Y %b")
+
+    print(dataframe.month)
+
+def rename_columns(dataframe):
+    pass
+
 
 def remove_dots_location(dataframe):
     # remove "." from location field
+
     dataframe.iloc[:,0] = dataframe.iloc[:,0].str.replace(".","")
 
 
@@ -35,9 +49,9 @@ def main():
     remove_dots_location(long_df)
     
     remove_dots_cpi(long_df)
+
+    convert_str_to_date(long_df)
     
-    # TODO: Fix rounding of actual cpi values when uploaded to GBQ
-    # probably caused by conversion of datatypes
     pandas_gbq.to_gbq(long_df, "staging.test",project_id="mao-dw",if_exists="replace")
 
 
